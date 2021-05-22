@@ -1,4 +1,4 @@
-name: "Deploy to IPFS Network"
+name: "Deploy to IPFS"
 description: "This action will handle the deployment process of your project to GitHub Pages."
 author: "nymmrx <nymmrx@protonmail.com>"
 branding:
