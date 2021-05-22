@@ -1,0 +1,71 @@
+name: "Deploy to IPFS Network"
+description: "This action will handle the deployment process of your project to GitHub Pages."
+author: "nymmrx <nymmrx@protonmail.com>"
+branding:
+  icon: "git-commit"
+  color: "blue"
+runs:
+  using: "node12"
+  main: "index.js"
+
+inputs:
+  pin-name:
+    description: "IPFS human readable pin name"
+    required: true
+
+  pin-remove-old:
+    description: "Remove old deployments"
+    required: false
+    default: "false"
+
+  pinata-key:
+    description: "pinata.cloud deployment key"
+    required: true
+
+  pinata-secret:
+    description: "pinata.cloud deployment secret"
+    required: true
+
+  cloudflare-zone-id:
+    description: "Cloudflare zone id"
+    required: false
+
+  cloudflare-secret:
+    description: "Cloudflare secret"
+    required: false
+
+  aws-access-key:
+    description: "AWS access key"
+    required: false
+
+  aws-access-secret:
+    description: "AWS access secret"
+    required: false
+
+  aws-zone-id:
+    description: "AWS Route53 zone id"
+    required: false
+
+  record-domain:
+    description: "Domain of the record that needs to be updated"
+    required: false
+
+  record-name:
+    description: "Name of the record that needs to be updated"
+    required: false
+
+  record-ttl:
+    description: "TTL of the record that needs to be updated"
+    required: false
+    default: "60"
+
+  path:
+    description: "Directory that will be uploaded to IPFS"
+    required: false
+    default: "."
+
+outputs:
+  cidv0:
+    description: "IPFS CIDv0 deployment identifier"
+  cidv1:
+    description: "IPFS CIDv1 deployment identifier"
