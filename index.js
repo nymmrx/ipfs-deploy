@@ -29,6 +29,7 @@ const Workspace = process.env.GITHUB_WORKSPACE.toString();
 
 async function main() {
   const uploadPath = path.isAbsolute(Path) ? Path : path.join(Workspace, Path);
+  core.info(`Deploying ${uploadPath} to IPFS...`);
 
   // deployment
 
@@ -37,10 +38,15 @@ async function main() {
     pinataMetadata: { name: PinName },
     pinataOptions: { cidVersion: 0, wrapWithDirectory: false },
   };
+
+  core.info("Requested pin from pinata...");
   const hash = await pinata.pinFromFS(uploadPath, pinataPinOptions);
   const cidv0 = hash.IpfsHash;
 
+  core.info(`Upload complete! IPFS cidv0: ${cidv0}`);
+
   if (PinRemoveOld) {
+    core.info(`Removing old pinned deployments...`);
     const filters = {
       status: "pinned",
       pageLimit: 1000,
@@ -50,6 +56,7 @@ async function main() {
     const pinned = await pinata.pinList(filters);
     pinned.rows.forEach((element) => {
       if (element.ipfs_pin_hash != cidv0) {
+        core.info(`Removing ${element.ipfs_pin_hash}!`);
         pinata.unpin(element.ipfs_pin_hash);
       }
     });
@@ -58,6 +65,7 @@ async function main() {
   // domain update
 
   if (CfZoneId && CfSecret) {
+    core.info(`Updating DNS records with Cloudflare...`);
     const domain = `${RecordName}.${RecordDomain}`;
     const content = `dnslink=/ipfs/${cidv0}`;
     const cf = new Cloudflare({ token: CfSecret });
@@ -70,9 +78,11 @@ async function main() {
       content,
       ttl: RecordTtl,
     });
+    core.info(`Cloudflare DNS updated!`);
   }
 
   if (AwsAccessKey && AwsAccessSecret && AwsZoneId) {
+    core.info(`Updating DNS records with AWS Route53...`);
     const domain = `${RecordName}.${RecordDomain}`;
     const content = `"dnslink=/ipfs/${cidv0}"`;
     AWS.config.update({
@@ -101,9 +111,15 @@ async function main() {
         ],
       },
     });
+    core.info(`Cloudflare DNS updated!`);
   }
 
   const cidv1 = new CID(cidv0).toV1().toString();
+
+  core.info("Deployment complete:");
+  core.info(`- IPFS cidv0: ${cidv0}`);
+  core.info(`- IPFS cidv1: ${cidv1}`);
+
   core.setOutput("cidv0", cidv0);
   core.setOutput("cidv1", cidv1);
 }
